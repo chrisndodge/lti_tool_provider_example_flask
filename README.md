@@ -1,6 +1,6 @@
 # lti_tool_provider_example_flask
 
-This is a basic and simple LTI Tool Providerthat uses the [ims-lti-py](https://github.com/tophatmonocle/ims-lti-py) library.
+This is a basic and simple LTI Tool Providerthat uses the [ims_lti_py](https://github.com/tophatmonocle/ims_lti_py) library.
 
 ## Installation
 
@@ -8,7 +8,7 @@ TODO
 
 ## Dependencies
 
- * [ims-lti-py](https://github.com/tophatmonocle/ims-lti-py)
+ * [ims_lti_py](https://github.com/tophatmonocle/ims_lti_py)
  * [Flask](https://github.com/mitsuhiko/flask)
 
 ## Usage
