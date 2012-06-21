@@ -1,0 +1,20 @@
+<html>
+    <body>
+        <p style="color: #ff3d23;">{{ message }}</p>
+
+        {% if @tp.launch_presentation_return_url %}
+        <a href="{{ return_url }}">Click here to return to .</a>
+        {% endif %}
+
+        <h3>Parameters</h3>
+        <table>
+            {% for key in params.iterkeys() %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>{{ params[key] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </body>
+</html>
