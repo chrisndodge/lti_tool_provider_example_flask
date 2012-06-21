@@ -1,6 +1,6 @@
-# ims-lti-py
+# lti_tool_provider_example_flask
 
-Python port of the useful [ims-lti](https://github.com/instructure/ims-lti) Ruby library. Makes integrating with LTI pretty easy.
+This is a basic and simple LTI Tool Providerthat uses the [ims-lti-py](https://github.com/tophatmonocle/ims-lti-py) library.
 
 ## Installation
 
@@ -8,14 +8,13 @@ TODO
 
 ## Dependencies
 
- * [lxml](https://github.com/lxml/lxml)
- * [python-oath2](https://github.com/simplegeo/python-oauth2)
+ * [ims-lti-py](https://github.com/tophatmonocle/ims-lti-py)
+ * [Flask](https://github.com/mitsuhiko/flask)
 
 ## Usage
 
 TODO
 
 ## Testing
-ims-lti-py unit tests can be run with the [nose](http://readthedocs.org/docs/nose/en/latest/) Python library. Once installed, just run
 
-    nosetests tests/
+TODO
