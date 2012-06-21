@@ -14,7 +14,7 @@ oauth_creds = { 'test': 'secret', 'testing': 'supersecret' }
 def index():
     render_template('index.html')
 
-@app.route('lti_tool', methods = ['POST'])
+@app.route('/lti_tool', methods = ['POST'])
 def lti_tool():
     key = request.form.get('oauth_consumer_key')
     if key:
@@ -53,6 +53,34 @@ def lti_tool():
                 roles = tool_provider.roles,
                 launch_presentation_return_url =\
                         tool_provider.launch_presentation_return_url)
+
+@app.route('/assessment', methods = ['POST'])
+def assessment():
+    if session['launch_params']:
+        key = session['launch_params']['oauth_consumer_key']
+    else:
+        return render_template('error.html', message = 'The tool never launched')
+
+    tool_provider = ToolProvider(key, oauth_creds[key],
+            session['launch_params'])
+
+    if tool_provider.is_outcome_service():
+        return render_template('error.html', 'The tool wasn\'t launch as an outcome service.')
+
+    # Post the given score to the ToolConsumer
+    response = tool_provider.post_replace_result(request.form.get('score'))
+    if response.is_success():
+        score = request.form.get('score')
+        tool_provider.lti_message = 'Message shown when arriving back at Tool Consumer.'
+        return render_template('assessment_finished.html',
+                score = score)
+    else:
+        tool_provider.lti_errormsg = 'The Tool Consumer failed to add the score.'
+        return render_template('error.html', message = response.description)
+
+@app.route('/tool_config.xml' methods = ['GET'])
+def tool_config():
+    # TODO
 
 def was_nonce_used_in_last_x_minutes(nonce, minutes):
     # TODO: Implement something here
