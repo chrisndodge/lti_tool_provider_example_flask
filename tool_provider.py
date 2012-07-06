@@ -1,7 +1,7 @@
 from flask import Flask, render_template, session, request,\
-        redirect, url_for, make_response
+        make_response
         
-from ims_lti_py import ToolProvider
+from ims_lti_py import ToolProvider, ToolConfig
 
 from time import time
 
@@ -12,7 +12,7 @@ oauth_creds = { 'test': 'secret', 'testing': 'supersecret' }
 
 @app.route('/', methods = ['GET'])
 def index():
-    render_template('index.html')
+    return render_template('index.html')
 
 @app.route('/lti_tool', methods = ['POST'])
 def lti_tool():
@@ -25,25 +25,29 @@ def lti_tool():
             tool_provider = ToolProvider(None, None, request.form)
             tool_provider.lti_msg = 'Your consumer didn\'t use a recognized key'
             tool_provider.lti_errorlog = 'You did it wrong!'
-            return render_template('error.html', message = 'Consumer key wasn\'t recognized')
+            return render_template('error.html', 
+                    message = 'Consumer key wasn\'t recognized',
+                    params = request.form)
     else:
         return render_template('error.html', message = 'No consumer key')
 
     if not tool_provider.is_valid_request(request):
-        return render_template('error.html', 'The OAuth signature was invalid')
+        return render_template('error.html', 
+                message = 'The OAuth signature was invalid',
+                params = request.form)
 
-    if time() - tool_provider.request_oauth_timestamp > 60*60:
+    if time() - int(tool_provider.oauth_timestamp) > 60*60:
         return render_template('error.html', message = 'Your request is too old.')
 
     # This does truly check anything, it's just here to remind you  that real
     # tools should be checking the OAuth nonce
-    if was_nonce_used_in_last_x_minutes(tool_provider.request_oauth_nonce, 60):
+    if was_nonce_used_in_last_x_minutes(tool_provider.oauth_nonce, 60):
         return render_template('error.html', message = 'Why are you reusing the nonce?')
 
-    session['launch_params'] = tool_provider.to_params
+    session['launch_params'] = tool_provider.to_params()
     username = tool_provider.username('Dude')
     if tool_provider.is_outcome_service():
-        return render_template('assessment', username =  username)
+        return render_template('assessment.html', username = username)
     else:
         tool_provider.lti_msg = 'Sorry that you tool was so lame.'
         return render_template('boring_tool',
@@ -64,8 +68,8 @@ def assessment():
     tool_provider = ToolProvider(key, oauth_creds[key],
             session['launch_params'])
 
-    if tool_provider.is_outcome_service():
-        return render_template('error.html', 'The tool wasn\'t launch as an outcome service.')
+    if not tool_provider.is_outcome_service():
+        return render_template('error.html', message = 'The tool wasn\'t launch as an outcome service.')
 
     # Post the given score to the ToolConsumer
     response = tool_provider.post_replace_result(request.form.get('score'))
@@ -78,13 +82,20 @@ def assessment():
         tool_provider.lti_errormsg = 'The Tool Consumer failed to add the score.'
         return render_template('error.html', message = response.description)
 
-@app.route('/tool_config.xml' methods = ['GET'])
+@app.route('/tool_config.xml', methods = ['GET'])
 def tool_config():
-    # TODO
+    host = request.scheme + '://' + request.host
+    url = host + '/lti_tool'
+    tool_config = ToolConfig(opts = {
+        'title': 'Example Flask Tool Provider',
+        'launch_url': url})
+    tool_config.description = 'This example LTI Tool Provider supports LIS Outcome pass-back'
+    resp = make_response(tool_config.to_xml(), 200)
+    resp.headers['Content-Type'] = 'text/xml' 
+    return resp
 
 def was_nonce_used_in_last_x_minutes(nonce, minutes):
-    # TODO: Implement something here
-    return False 
+    return False
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port = 5000)
