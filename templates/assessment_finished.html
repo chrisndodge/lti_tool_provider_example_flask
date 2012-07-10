@@ -1,7 +1,7 @@
 <html>
     <head><title>Finished Assessment</title></head>
     <body>
-        <p>Your score of {% score %} was successfully sent to your LMS</p>
+        <p>Your score of {{ score }} was successfully sent to your LMS</p>
 
         {% if launch_presentation_return_url %}
         <a href="{{ return_url }}">Click here to return to .</a>
