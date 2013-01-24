@@ -4,6 +4,7 @@ from flask import Flask, render_template, session, request,\
 from ims_lti_py import ToolProvider, ToolConfig
 
 from time import time
+import os
 
 app = Flask(__name__)
 app.secret_key = '\xc8K\x80\x00e}R\x92I\x1b\xec\x10"oP\xc5o~~\x83\xb6f\x9e4'
@@ -98,4 +99,6 @@ def was_nonce_used_in_last_x_minutes(nonce, minutes):
     return False
 
 if __name__ == '__main__':
-    app.run(port = 5000)
+    if 'DEBUG' in os.environ:
+        app.debug = True
+    app.run(host="0.0.0.0", port=5000)
