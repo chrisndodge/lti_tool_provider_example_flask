@@ -86,10 +86,13 @@ def assessment():
 @app.route('/tool_config.xml', methods = ['GET'])
 def tool_config():
     host = request.scheme + '://' + request.host
+    secure_host = 'https://' + request.host
     url = host + '/lti_tool'
-    lti_tool_config = ToolConfig(opts = {
-        'title': 'Example Flask Tool Provider',
-        'launch_url': url})
+    secure_url = secure_host + '/lti_tool'
+    lti_tool_config = ToolConfig(
+        title='Example Flask Tool Provider',
+        launch_url=url,
+        secure_launch_url=secure_url)
     lti_tool_config.description = 'This example LTI Tool Provider supports LIS Outcome pass-back'
     resp = make_response(lti_tool_config.to_xml(), 200)
     resp.headers['Content-Type'] = 'text/xml' 
