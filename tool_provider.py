@@ -1,13 +1,16 @@
 from flask import Flask, render_template, session, request,\
         make_response
-        
-from ims_lti_py import ToolProvider, ToolConfig
+
+from ims_lti_py import ToolConfig
+from ims_lti_py import FlaskToolProvider as ToolProvider
 
 from time import time
 import os
 
 app = Flask(__name__)
 app.secret_key = '\xc8K\x80\x00e}R\x92I\x1b\xec\x10"oP\xc5o~~\x83\xb6f\x9e4'
+app.debug = True
+
 
 oauth_creds = { 'test': 'secret', 'testing': 'supersecret' }
 
@@ -17,6 +20,7 @@ def index():
 
 @app.route('/lti_tool', methods = ['POST'])
 def lti_tool():
+    print request.form
     key = request.form.get('oauth_consumer_key')
     if key:
         secret = oauth_creds.get(key)
@@ -26,17 +30,16 @@ def lti_tool():
             tool_provider = ToolProvider(None, None, request.form)
             tool_provider.lti_msg = 'Your consumer didn\'t use a recognized key'
             tool_provider.lti_errorlog = 'You did it wrong!'
-            return render_template('error.html', 
+            return render_template('error.html',
                     message = 'Consumer key wasn\'t recognized',
                     params = request.form)
     else:
         return render_template('error.html', message = 'No consumer key')
 
     if not tool_provider.is_valid_request(request):
-        return render_template('error.html', 
+        return render_template('error.html',
                 message = 'The OAuth signature was invalid',
                 params = request.form)
-
     if time() - int(tool_provider.oauth_timestamp) > 60*60:
         return render_template('error.html', message = 'Your request is too old.')
 
@@ -51,10 +54,10 @@ def lti_tool():
         return render_template('assessment.html', username = username)
     else:
         tool_provider.lti_msg = 'Sorry that you tool was so lame.'
-        return render_template('boring_tool',
+        return render_template('boring_tool.html',
                 username = username,
                 student = tool_provider.is_student(),
-                instructor = tool_provider.is_teacher(),
+                instructor = tool_provider.is_instructor(),
                 roles = tool_provider.roles,
                 launch_presentation_return_url =\
                         tool_provider.launch_presentation_return_url)
@@ -95,7 +98,7 @@ def tool_config():
         secure_launch_url=secure_url)
     lti_tool_config.description = 'This example LTI Tool Provider supports LIS Outcome pass-back'
     resp = make_response(lti_tool_config.to_xml(), 200)
-    resp.headers['Content-Type'] = 'text/xml' 
+    resp.headers['Content-Type'] = 'text/xml'
     return resp
 
 def was_nonce_used_in_last_x_minutes(nonce, minutes):
