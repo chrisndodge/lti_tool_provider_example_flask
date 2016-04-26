@@ -9,7 +9,7 @@ import os
 
 app = Flask(__name__)
 app.secret_key = '\xc8K\x80\x00e}R\x92I\x1b\xec\x10"oP\xc5o~~\x83\xb6f\x9e4'
-# be sure to set debug
+# be sure to set debug so we get dumps
 app.debug = True
 
 
