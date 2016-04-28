@@ -22,6 +22,11 @@ def index():
 @app.route('/lti_tool', methods = ['POST'])
 def lti_tool():
     print request.form
+
+    openedx_username = request.form.get('lis_person_sourcedid', '(anonymous)')
+    openedx_email = request.form.get('lis_person_contact_email_primary', '(unknown}')
+    openedx_anon_id = request.form.get('user_id')
+
     key = request.form.get('oauth_consumer_key')
     if key:
         secret = oauth_creds.get(key)
@@ -50,13 +55,21 @@ def lti_tool():
         return render_template('error.html', message = 'Why are you reusing the nonce?')
 
     session['launch_params'] = tool_provider.to_params()
-    username = tool_provider.username('Dude')
+    display_name = tool_provider.username('Anonymous Student')
     if tool_provider.is_outcome_service():
-        return render_template('assessment.html', username = username)
+        return render_template('assessment.html',
+            display_name = display_name,
+            username = openedx_username,
+            email = openedx_email,
+            anonymous_id = openedx_anon_id,
+    )
     else:
         tool_provider.lti_msg = 'Sorry that you tool was so lame.'
         return render_template('boring_tool.html',
-                username = username,
+                display_name = display_name,
+                username = openedx_username,
+                email = openedx_email,
+                anonymous_id = openedx_anon_id,
                 student = tool_provider.is_student(),
                 instructor = tool_provider.is_instructor(),
                 roles = tool_provider.roles,

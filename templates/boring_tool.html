@@ -1,7 +1,7 @@
 <html>
     <head><title>Demo LTI Tool</title></head>
     <body>
-        <p>Hi, {{ username }}, this is an LTI tool. I hope you learned a lot.</p>
+        <p>Hi, {{ display_name }}, this is an LTI tool. I hope you learned a lot.</p>
         {% if instructor %}
         <p>You are a teacher, so you could configure this tool now if it were cool enough to have configurations.</p>
         <p>If you come back as a student you may get to take a test.</p>
@@ -13,6 +13,10 @@
         {% else %}
         <p>You don't have a role so I don't know what to do with you.</p>
         {% endif %}
+
+        <p>
+            Open edX Identity: anonymous_id={{anonymous_id}}, username={{ username}}, email={{email}}
+        </p>
 
         {% if launch_presentation_return_url %}
         <a href="{{ return_url }}">Click here to return to .</a>
